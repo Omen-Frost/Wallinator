@@ -7,8 +7,8 @@ from googleapiclient.discovery import build
 def fetch(d, dl_path, log):
 
     # hide this
-    api_key = "AIzaSyCent9IiqqVF2dvEQZ3xkGY52wafUoebYs"
-    cs_key = "012170499795788205036:1flfbariut8"
+    api_key = "[Your API key]"
+    cs_key = "[Your Custom search engine key]"
 
     urls = []
     remaining = d['fetchCnt']
