@@ -1,0 +1,23 @@
+# Configuration file for Wallinator
+
+# Format: [Id]. [Setting] = ([Value]) # Description
+# IMPORTANT: Modify contents of Value only 
+
+
+1. frequency = (3) # Seconds after which wallpaper changes
+
+2. q = (widescreen wallpapers) # Search query. # Change to a new query to download and use new wallpaper results.
+
+
+3. dateRestrict = (Any)   # Restricts results to specified time.
+			  # Any : default setting
+			  # d : requests results from the past day.
+                          # w : requests results from the past week.
+                          # m : requests results from the past month.
+                          # y : requests results from the past year
+                          
+
+4. imgSize = (huge) # Choose image size from: 'large', 'xlarge', 'xxlarge', 'huge'. 
+	
+
+5. fetchCnt = (15) # Number of images to download of the chosen query. Allowed values = 1-100.
