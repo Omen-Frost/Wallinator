@@ -49,7 +49,7 @@ def read_config(log):
     d = parse(lines)
 
     if len(d) != 5:
-        print("err: invalid config.txt file", file=log)
+        print("err: invalid config.txt file", file=log, flush=True)
         config = open('backup.txt', 'r')
         lines = config.readlines()
         config.close()
@@ -62,7 +62,7 @@ def main():
     # create file for logging errors
     log = open('log.txt', 'w')
     log.truncate(0)
-    print("Log Start\n", file=log)
+    print("Log Start\n", file=log, flush=True)
 
     data_path = os.getcwd() + "\\data"
     if not os.path.exists(data_path):
@@ -89,12 +89,12 @@ def main():
             p = setter.set_wallpaper(
                 use_path, (use_path != data_path), data_path)
             if p == -1:
-                print("err: set failed", file=log)
+                print("err: set failed", file=log, flush=True)
             elif p == 0:
-                print("no files left, switch to data", file=log)
+                print("no files left, switch to data", file=log, flush=True)
                 use_path = data_path
             else:
-                print("set", file=log)
+                print("set", file=log, flush=True)
 
             # Put the process to sleep for freq seconds
             time.sleep(max(freq, 1)) 
@@ -104,9 +104,9 @@ def main():
             use_path = new_path
             prev_query = d['q']
             # prevent keyboard interrupt here
-            print('downloading',file=log)
+            print('downloading',file=log, flush=True)
             get_images.fetch(d, new_path, log)
-            print('download finshed',file=log)
+            print('download finshed',file=log, flush=True)
 
 
 if __name__ == "__main__":
