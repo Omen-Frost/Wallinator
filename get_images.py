@@ -42,7 +42,7 @@ def fetch(d, dl_path, log):
             remaining -= 10
 
     except Exception as e:
-        print(e, file=log)
+        print(e, file=log, flush=True)
 
 
     for url in urls:
@@ -51,12 +51,12 @@ def fetch(d, dl_path, log):
         if j==-1 :
             continue
         filename = filename[0:j+4]
-        print("downloaded:" + filename,file=log)
+        print("downloaded:" + filename,file=log, flush=True)
 
         try :
             response = requests.get(url, timeout=7) # download url content
         except Exception as e:
-            print(e, file=log)
+            print(e, file=log, flush=True)
             continue
         if response.status_code == 200: # Successful download
             open(os.path.join(dl_path, filename), 'wb').write(response.content) # write image
