@@ -28,6 +28,12 @@ def set_wallpaper(path, mode, moveto):
     time.sleep(0.5)
     # move image from new to data
     if mode == 1:
-        shutil.move(img_path, moveto)
+
+        try:
+            shutil.move(img_path, moveto)
+        except:
+            # file of same name already exists
+            if os.path.exists(img_path):
+                os.remove(img_path)
 
     return 1
