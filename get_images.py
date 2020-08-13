@@ -4,11 +4,12 @@ import os
 from googleapiclient.discovery import build
 
 
-def fetch(d, dl_path, log):
+def fetch(d, log, stop):
 
-    # hide this
+    # Change these with your keys
     api_key = "[Your API key]"
     cs_key = "[Your Custom search engine key]"
+    
 
     urls = []
     remaining = d['fetchCnt']
@@ -44,21 +45,37 @@ def fetch(d, dl_path, log):
     except Exception as e:
         print(e, file=log, flush=True)
 
+    # download directory
+    dl_path = os.path.join(os.getcwd() + "\\data", d['q'])
+    if not os.path.exists(dl_path):
+        os.makedirs(dl_path)
 
+    print('downloading',file=log, flush=True)
+
+    # Download image from each url fetched
     for url in urls:
+
         filename = url.split('/')[-1]
-        j = filename.lower().find('.jpg')
+        filename = filename.lower()
+        j = filename.find('.jpg')
         if j==-1 :
             continue
         filename = filename[0:j+4]
-        print("downloaded:" + filename,file=log, flush=True)
 
         try :
-            response = requests.get(url, timeout=7) # download url content
+            response = requests.get(url, timeout=3) # download url content
         except Exception as e:
             print(e, file=log, flush=True)
             continue
-        if response.status_code == 200: # Successful download
-            open(os.path.join(dl_path, filename), 'wb').write(response.content) # write image
 
-    time.sleep(0.5)
+        if response.status_code == 200: # Successful download
+            print("downloaded: " + filename,file=log, flush=True)
+            open(os.path.join(dl_path, filename), 'wb').write(response.content) # write image
+        
+        # check if thread should stop
+        if stop[0] :
+            print('download interrupted',file=log, flush=True)
+            return
+
+    print('download finshed',file=log, flush=True)
+

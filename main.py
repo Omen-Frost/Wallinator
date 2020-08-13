@@ -2,6 +2,9 @@ import setter
 import os
 import time
 import get_images
+import threading
+from threading import Thread
+
 
 # parses config file to read settings and set search parameters
 def parse(lines):
@@ -10,7 +13,7 @@ def parse(lines):
         s = line[0]
         l = line.find('(')
         r = line.rfind(')')
-        if l>=r :
+        if l >= r:
             continue
         if s == '1':
             try:
@@ -20,6 +23,12 @@ def parse(lines):
             d['frequency'] = max(d['frequency'], 1)
         elif s == '2':
             d['q'] = line[l+1:r]
+            bad = ['/', '\\', '*', '?', ':', '\"', '<', '>', '|']
+            name = list(d['q'])
+            for i in range(len(name)):
+                if name[i] in bad:
+                    name[i] = '_'
+            d['q'] = ''.join(name)
         elif s == '3':
             d['dateRestrict'] = line[l+1:r].strip()
             valid = ['d', 'w', 'm', 'y']
@@ -37,10 +46,18 @@ def parse(lines):
                 d['fetchCnt'] = 10
             d['fetchCnt'] = max(1, d['fetchCnt'])
             d['fetchCnt'] = min(100, d['fetchCnt'])
+        elif s == '6':
+            try:
+                d['mode'] = int(line[l+1:r].strip())
+            except:
+                d['mode'] = 0
+            if d['mode'] != 1:
+                d['mode'] = 0
 
     return d
 
-# open config file 
+
+# open config file
 def read_config(log):
 
     config = open('config.txt', 'r')
@@ -48,7 +65,7 @@ def read_config(log):
     config.close()
     d = parse(lines)
 
-    if len(d) != 5:
+    if len(d) != 6:
         print("err: invalid config.txt file", file=log, flush=True)
         config = open('backup.txt', 'r')
         lines = config.readlines()
@@ -68,45 +85,41 @@ def main():
     if not os.path.exists(data_path):
         os.makedirs(data_path)
 
-    new_path = os.getcwd() + "\\new"
-    if not os.path.exists(new_path):
-        os.makedirs(new_path)
-
     d = read_config(log)
     freq = d['frequency']
     prev_query = d['q']
-    use_path = data_path
+
+    # Create a Thread object responsible for downloading images
+    downloader_thread = Thread()
+
+    # A argument to the downloader thread to stop it's execution prematurely
+    stop = [False]
 
     while True:
 
         d = read_config(log)
-
         freq = d['frequency']
 
-        if d['q'] == prev_query:
+        # Trigger download when user has entered a new query
+        if d['q'] != prev_query:
 
-            # set a random image as wallpaper from the specified path
-            p = setter.set_wallpaper(
-                use_path, (use_path != data_path), data_path)
-            if p == -1:
-                print("err: set failed", file=log, flush=True)
-            elif p == 0:
-                print("no files left, switch to data", file=log, flush=True)
-                use_path = data_path
-            else:
-                print("set", file=log, flush=True)
+            # Stop previously running downloader thread, if any, safely
+            if downloader_thread.is_alive():
+                # acquiring lock here is not needed
+                stop[0] = True
+                downloader_thread.join()
+                stop[0] = False
 
-            # Put the process to sleep for freq seconds
-            time.sleep(max(freq, 1)) 
-
-        else:
-
-            use_path = new_path
             prev_query = d['q']
-            # prevent keyboard interrupt here
-            print('downloading',file=log, flush=True)
-            get_images.fetch(d, new_path, log)
-            print('download finshed',file=log, flush=True)
+            downloader_thread = Thread(target=get_images.fetch,
+                                       args=(d, log, stop))
+            downloader_thread.start()
+
+        # Change wallpaer
+        setter.set_wallpaper(d['q'], d['mode'], log)
+
+        # Put the "main" thread to sleep for freq seconds
+        time.sleep(freq)
 
 
 if __name__ == "__main__":
