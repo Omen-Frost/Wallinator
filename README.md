@@ -11,6 +11,7 @@ Users need to create their own Google custom search API key and CS key(Custom se
 **Features**:
 * Changes wallpapers after fixed intervals choosing from exisiting downloaded images or newly downloaded ones.
 * Uses Google image search to download images corresponding to user search query.
+* Seamless changing of wallpapers.
 * Allow time restriction to fetch recent results.
 * Choose from different image sizes and number of images to download for a certain query.
 
